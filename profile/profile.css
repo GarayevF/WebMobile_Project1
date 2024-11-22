@@ -140,4 +140,28 @@ body {
   #manualFields {
     margin-top: 20px;
   }
+  #manualFields .form-group .delete-btn {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+  }
+  
+  #manualFields .form-group .delete-btn:hover {
+    background-color: #e53935;
+  }
+  
+  #manualFields .form-group .delete-btn:active {
+    background-color: #c62828;
+  }
+  
+  #manualFields .form-group {
+    margin-bottom: 15px;
+  }
+  
+  
   
