@@ -1,5 +1,3 @@
-
-
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "sendUrl") {
         console.log("Received URL:", message.url);
