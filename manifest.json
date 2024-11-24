@@ -6,13 +6,13 @@
     "icons": {
 
     },
-    "background": {
-        "service_worker": "service-worker.js"
-    },
     "action": {
-        "default_popup": "./popup/popup.html"
+    "default_popup": "popup/popup.html"
+  },
+    "background": {
+        "service_worker": "background.js"
     },
-    "permissions": ["tabs", "scripting", "activeTab"],
+    "permissions": ["tabs", "scripting", "activeTab", "storage"],
     "host_permissions": ["<all_urls>"],
     "content_scripts": [
         {
