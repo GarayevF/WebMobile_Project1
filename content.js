@@ -13,4 +13,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         return true; 
     }
+
+    if (message.action === "getH1") {
+        const h1Text = document.querySelector(".XtnqdVTIVNWsbnBJDQhVakQTbSAaOKCkEMdbrk")?.textContent || "No H1 found";
+        alert(`H1 Text: ${h1Text}`);
+    }
 });

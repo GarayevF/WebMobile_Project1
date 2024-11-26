@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const manualFieldsContainer = document.getElementById("manualFields");
     const addFieldBtn = document.getElementById("addFieldBtn");
     const createProfileBtn = document.getElementById("createProfileBtn");
+    const linkedinBtn = document.getElementById("loadProfileBtn");
   
     addFieldBtn.addEventListener("click", () => {
       const fieldContainer = document.createElement("div");
@@ -74,5 +75,11 @@ document.addEventListener("DOMContentLoaded", () => {
       currentId++;
       localStorage.setItem('currentId', currentId);
     });
+
+    linkedinBtn.addEventListener("click", () => {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        chrome.tabs.sendMessage(tabs[0].id, { action: "getH1" });
+    });
+    })
   });
   
