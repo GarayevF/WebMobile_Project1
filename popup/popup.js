@@ -1,3 +1,7 @@
+document.querySelector("#profileCreate").addEventListener("click", () => {
+    window.location.href = window.location.href = chrome.runtime.getURL("profile/profile.html");;
+})
+
 document.querySelector("#test").addEventListener("click", () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs.length === 0) {
@@ -7,8 +11,11 @@ document.querySelector("#test").addEventListener("click", () => {
 
         chrome.tabs.sendMessage(tabs[0].id, { action: "getH1" }, (response) => {
             
-                console.log("Response:", response);
+            console.log(response);
             
         });
     });
+    
+
+      
 });
