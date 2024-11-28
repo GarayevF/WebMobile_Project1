@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+
   const manualFieldsContainer = document.getElementById("manualFields");
   const addFieldBtn = document.getElementById("addFieldBtn");
   const createProfileBtn = document.getElementById("createProfileBtn");
@@ -35,46 +36,64 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   createProfileBtn.addEventListener("click", () => {
-    let currentId = localStorage.getItem('currentId') ? parseInt(localStorage.getItem('currentId')) : 1;
-
-    const profileData = {};
-    profileData['Profile Name'] = document.getElementById('name').value.trim();
-    profileData['FullName'] = document.getElementById('fullname').value.trim();
-    profileData['Email'] = document.getElementById('email').value.trim();
-    profileData['Experience'] = document.getElementById('experience').value.trim();
-    profileData['Education'] = document.getElementById('education').value.trim();
-    profileData['Skills'] = document.getElementById('skills').value.trim();
-
-    for (let key in profileData) {
-      if (!profileData[key]) {
-        delete profileData[key];
-      }
-    }
-
-    const profile = {
-      id: currentId + 1,
-      fields: profileData
-    };
-
-    const formGroups = manualFieldsContainer.querySelectorAll('.form-group');
-    formGroups.forEach((formGroup) => {
-      const labelInput = formGroup.querySelector('input');
-      const textarea = formGroup.querySelector('textarea');
+    //let currentId = localStorage.getItem('currentId') ? parseInt(localStorage.getItem('currentId')) : 1;
+    let currentId = null
+    chrome.storage.local.get(["currentId"], (result) => {
       
-      if (labelInput && textarea) {
-        const labelName = labelInput.value.trim();
-        const fieldValue = textarea.value.trim();
+      currentId = result.currentId;
+      if (currentId == null || currentId == undefined) currentId = 1
 
-        if (labelName && fieldValue) {
-          profile.fields[labelName] = fieldValue;
+
+      const profileData = {};
+        profileData['Profile Name'] = document.getElementById('name').value.trim();
+        profileData['FullName'] = document.getElementById('fullname').value.trim();
+        profileData['Email'] = document.getElementById('email').value.trim();
+        profileData['Experience'] = document.getElementById('experience').value.trim();
+        profileData['Education'] = document.getElementById('education').value.trim();
+        profileData['Skills'] = document.getElementById('skills').value.trim();
+
+        for (let key in profileData) {
+          if (!profileData[key]) {
+            delete profileData[key];
+          }
         }
-      }
-    });
 
-    localStorage.setItem(`profile_${currentId + 1}`, JSON.stringify(profile));
-    currentId++;
-    localStorage.setItem('currentId', currentId);
-  });
+        const profile = {
+          id: currentId + 1,
+          fields: profileData
+        };
+
+        const formGroups = manualFieldsContainer.querySelectorAll('.form-group');
+        formGroups.forEach((formGroup) => {
+          const labelInput = formGroup.querySelector('input');
+          const textarea = formGroup.querySelector('textarea');
+          
+          if (labelInput && textarea) {
+            const labelName = labelInput.value.trim();
+            const fieldValue = textarea.value.trim();
+
+            if (labelName && fieldValue) {
+              profile.fields[labelName] = fieldValue;
+            }
+          }
+        });
+
+        let keyOne = `profile_${currentId + 1}`
+
+        chrome.storage.local.set({ [keyOne] : JSON.stringify(profile) });
+        currentId++;
+        chrome.storage.local.set({currentId : currentId});
+
+        window.location.href = chrome.runtime.getURL("popup/popup.html");;
+
+      });
+
+      alert(keyOne + "created")
+
+    })
+
+
+    
 
   linkedinBtn.addEventListener("click", () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {

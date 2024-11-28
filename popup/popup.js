@@ -1,5 +1,10 @@
 document.querySelector("#profileCreate").addEventListener("click", () => {
-    window.location.href = window.location.href = chrome.runtime.getURL("profile/profile.html");;
+    chrome.storage.local.get(null, (items) => console.log(items))
+
+    chrome.storage.local.get(["currentId"], (result) => { console.log(result.currentId)})
+
+    //window.location.href = chrome.runtime.getURL("profile/profile.html");
+    
 })
 
 document.querySelector("#test").addEventListener("click", () => {

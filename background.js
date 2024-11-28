@@ -2,14 +2,13 @@
 chrome.runtime.onMessage.addListener(async(message, sender, sendResponse) => {
 
   
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === "getLocalStorage") {
-      const data = localStorage.getItem(message.key);
-      alert(data)
-      sendResponse({ value: data });
-    }
-    return true; 
-  });
+  if (message.action === "getLocalStorage") {
+    
+    chrome.storage.local.get([message.key], (result) => {
+      sendResponse({ data: result });
+    });
+    
+  }
 
     if (message.action === "newtab") {
 
@@ -74,7 +73,6 @@ chrome.runtime.onMessage.addListener(async(message, sender, sendResponse) => {
             let skill = li.querySelector("span[aria-hidden=true]").textContent
             skills.push(skill)
         })
-        alert(skills)
         chrome.runtime.sendMessage({ action: "closeTab" });
     }, 3000);
     
@@ -99,7 +97,6 @@ chrome.runtime.onMessage.addListener(async(message, sender, sendResponse) => {
             },
           },
           (results) => {
-            alert(result)
             if (results && results[0].result) {
               resolve(results[0].result);
             }
@@ -121,7 +118,7 @@ chrome.runtime.onMessage.addListener(async(message, sender, sendResponse) => {
         
   //       chrome.tabs.onUpdated.addListener(function listener(updatedTabId, changeInfo) {
   //         if (updatedTabId === tabId && changeInfo.status === "complete") {
-  //           // Sayfa tamamen yüklendi
+  //           
   //           chrome.scripting.executeScript(
   //             {
   //               target: { tabId },
@@ -130,7 +127,7 @@ chrome.runtime.onMessage.addListener(async(message, sender, sendResponse) => {
   //               },
   //             },
   //             (results) => {
-  //               chrome.tabs.onUpdated.removeListener(listener); // Dinleyiciyi kaldır
+  //               chrome.tabs.onUpdated.removeListener(listener);
   //               resolve(results && results[0].result ? results[0].result : "No content");
   //             }
   //           );
