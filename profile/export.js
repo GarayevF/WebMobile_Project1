@@ -1,39 +1,47 @@
-function exportProfileByName(profileName) {
-    if (!profileName || profileName.trim() === "") {
-      alert("Please enter a valid profile name.");
-      return;
-    }
-  
-    let profileToExport = null;
-  
+document.addEventListener("DOMContentLoaded", () => {
+  const profileSelect = document.getElementById("profileSelect");
+  const exportBtn = document.getElementById("exportBtn");
+
+  const loadProfiles = () => {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key.startsWith("profile_")) {
         const profile = JSON.parse(localStorage.getItem(key));
-        if (profile.fields["Profile Name"] === profileName.trim()) {
-          profileToExport = profile;
-          break;
-        }
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = profile.fields["Profile Name"];
+        profileSelect.appendChild(option);
       }
     }
-  
-    if (!profileToExport) {
-      alert(`Profile with the name "${profileName}" not found.`);
+  };
+
+  profileSelect.addEventListener("change", () => {
+    exportBtn.disabled = !profileSelect.value;
+  });
+
+  exportBtn.addEventListener("click", () => {
+    const selectedProfileKey = profileSelect.value;
+    if (!selectedProfileKey) {
+      alert("Please select a profile to export.");
       return;
     }
-  
-    const jsonData = JSON.stringify(profileToExport, null, 2);
-    const blob = new Blob([jsonData], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-  
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${profileName}_profile.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  
-    URL.revokeObjectURL(url);
-    alert(`Profile "${profileName}" has been exported successfully!`);
-  }
-  
+
+    const profileData = JSON.parse(localStorage.getItem(selectedProfileKey));
+    if (profileData) {
+      const { id, fields } = profileData;
+
+      const blob = new Blob([JSON.stringify(fields, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      const profileName = fields["Profile Name"];
+      link.download = `${profileName}.json`;
+
+      link.click();
+      URL.revokeObjectURL(link.href);
+    } else {
+      alert("Profile data not found.");
+    }
+  });
+
+  loadProfiles();
+});
