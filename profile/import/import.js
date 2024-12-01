@@ -42,6 +42,14 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("Invalid profile format. 'Profile Name' is required.");
             return;
           }
+          
+          const requiredFields = ["FullName", "Email", "Experience", "Education", "Skills"];
+          for (const field of requiredFields) {
+            if (!profileData[field]) {
+              alert(`Missing required field: ${field}`);
+              return;
+            }
+          }
   
           const isUnique = Object.keys(localStorage).every((key) => {
             if (key.startsWith("profile_")) {
@@ -64,6 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
           localStorage.setItem(`profile_${id}`, JSON.stringify(profile));
           alert("Profile imported successfully!");
+  
           importInput.value = "";
           fileNameDisplay.textContent = "";
           fileNameDisplay.style.visibility = "hidden";
