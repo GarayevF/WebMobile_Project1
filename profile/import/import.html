@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Import Profile</title>
+  <link rel="stylesheet" href="import.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Import Profile</h1>
+    <div class="import-container">
+      <label for="fileInput" class="file-input-wrapper">
+        Select JSON File
+        <input type="file" id="fileInput" accept=".json">
+      </label>
+      
+      <p id="fileName" class="file-name"></p>
+      <button id="importButton" disabled>Import Profile</button>
+    </div>
+  </div>
+
+  <script src="import.js"></script>
+</body>
+</html>

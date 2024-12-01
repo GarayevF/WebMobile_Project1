@@ -84,20 +84,34 @@ document.addEventListener("DOMContentLoaded", () => {
         currentId++;
         chrome.storage.local.set({currentId : currentId});
 
-        window.location.href = chrome.runtime.getURL("popup/popup.html");;
+        window.location.href = chrome.runtime.getURL("popup/popup.html");
+
+        alert(keyOne + " - " + " Profile created")
 
       });
 
-      alert(keyOne + "created")
+      
 
     })
 
-
-    
-
   linkedinBtn.addEventListener("click", () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.tabs.sendMessage(tabs[0].id, { action: "getH1" });
+      const currentTab = tabs[0]; // Şu anki aktif sekme
+      if (currentTab && currentTab.url.includes("linkedin.com")) {
+        chrome.tabs.sendMessage(tabs[0].id, { action: "getLinkedin" }, (response) => {
+              
+          console.log(response.data.details)
+  
+          document.getElementById('fullname').value = response.data.details.fullName
+          document.getElementById('experience').value = response.data.details.experience.join(", ")
+          document.getElementById('education').value = response.data.details.education.join(", ")
+          document.getElementById('skills').value = response.data.details.skills.join(", ")
+  
+        });
+      } else {
+        alert("Please go to your linkedin profile page to use this feature");
+      }
+      
     });
   })
 });
