@@ -9,21 +9,35 @@
 <body>
     
     <div class="main">
+        <div class="form-group">
+            <label for="selectProfile">Select Profile:</label>
+            <select id="selectProfile">
+              <option value="" disabled selected>Select a profile</option>
+            </select>
+          </div>
+      
+          <div id="profileFields" class="fields-container">
+            
+          </div>
+          
         <div class="all">
             <div class="btn-div col-4">
                 <button id="profileCreate">Create Profile</button>
             </div>
             <div class="btn-div col-4">
-                <button>View Profiles</button>
+                <button id="edit">Edit Profiles</button>
             </div>
             <div class="btn-div col-4">
-                <button>Create Profile</button>
+                <button id="delete">Delete Profile</button>
             </div>
-            <div class="btn-div col-6">
-                <button id="test">Application Tracking</button>
+            <div class="btn-div col-4">
+                <button id="export">Export Profile</button>
             </div>
-            <div class="btn-div col-6">
-                <button>Create Profile</button>
+            <div class="btn-div col-4">
+                <button id="import">Import Profile</button>
+            </div>
+            <div class="btn-div col-4">
+                <button id="application">Application Tracking</button>
             </div>
         </div>
     </div>

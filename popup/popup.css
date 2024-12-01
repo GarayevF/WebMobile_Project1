@@ -13,7 +13,7 @@
 }
 
 .main{
-    width: 450px;
+    width: 500px;
     
 }
 
@@ -34,4 +34,59 @@
     padding: 10px;
     min-width: 120px;
 }
+
+.form-group {
+    margin-bottom: 15px;
+  }
+  
+  label {
+    font-size: 14px;
+    color: #666666;
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  select,
+  input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #dddddd;
+    border-radius: 5px;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  
+  select:focus,
+  input[type="text"]:focus {
+    border-color: #4CAF50;
+  }
+  
+  .fields-container {
+    margin-top: 15px;
+  }
+  
+  .fields-container .form-group {
+    margin-bottom: 20px;
+  }
+  input[type="button"].btn-save {
+    display: none;
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+  input[type="button"].btn-save.visible:hover {
+    background-color: #45a049;
+  }
+
+  input[type="button"].btn-save.visible {
+    display: block;
+  }
 

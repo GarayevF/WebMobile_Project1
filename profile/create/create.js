@@ -1,22 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
+
   const manualFieldsContainer = document.getElementById("manualFields");
   const addFieldBtn = document.getElementById("addFieldBtn");
   const createProfileBtn = document.getElementById("createProfileBtn");
-  const profileNameInput = document.getElementById("name");
-
-  // Function to check if a profile name is unique
-  const isProfileNameUnique = (profileName) => {
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key.startsWith("profile_")) {
-        const profile = JSON.parse(localStorage.getItem(key));
-        if (profile.fields["Profile Name"] === profileName) {
-          return false; // Profile name already exists
-        }
-      }
-    }
-    return true;
-  };
+  const linkedinBtn = document.getElementById("loadProfileBtn");
 
   addFieldBtn.addEventListener("click", () => {
     const fieldContainer = document.createElement("div");
@@ -49,65 +36,83 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   createProfileBtn.addEventListener("click", () => {
-    let currentId = localStorage.getItem("currentId") ? parseInt(localStorage.getItem("currentId")) : 1;
+    //let currentId = localStorage.getItem('currentId') ? parseInt(localStorage.getItem('currentId')) : 1;
+    let currentId = null
+    chrome.storage.local.get(["currentId"], (result) => {
+      
+      currentId = result.currentId;
+      if (currentId == null || currentId == undefined) currentId = 1
 
-    const profileData = {};
-    const profileName = profileNameInput.value.trim();
-    profileData["Profile Name"] = profileName;
-    profileData["FullName"] = document.getElementById("fullname").value.trim();
-    profileData["Email"] = document.getElementById("email").value.trim();
-    profileData["Experience"] = document.getElementById("experience").value.trim();
-    profileData["Education"] = document.getElementById("education").value.trim();
-    profileData["Skills"] = document.getElementById("skills").value.trim();
 
-    // Validate unique profile name
-    if (!profileName) {
-      alert("Profile Name is required.");
-      return;
-    }
+      const profileData = {};
+        profileData['Profile Name'] = document.getElementById('name').value.trim();
+        profileData['FullName'] = document.getElementById('fullname').value.trim();
+        profileData['Email'] = document.getElementById('email').value.trim();
+        profileData['Experience'] = document.getElementById('experience').value.trim();
+        profileData['Education'] = document.getElementById('education').value.trim();
+        profileData['Skills'] = document.getElementById('skills').value.trim();
 
-    if (!isProfileNameUnique(profileName)) {
-      alert("Profile Name must be unique. Please choose a different name.");
-      return;
-    }
-
-    for (let key in profileData) {
-      if (!profileData[key]) {
-        delete profileData[key];
-      }
-    }
-
-    const profile = {
-      id: currentId + 1,
-      fields: profileData,
-    };
-
-    const formGroups = manualFieldsContainer.querySelectorAll(".form-group");
-    formGroups.forEach((formGroup) => {
-      const labelInput = formGroup.querySelector("input");
-      const textarea = formGroup.querySelector("textarea");
-
-      if (labelInput && textarea) {
-        const labelName = labelInput.value.trim();
-        const fieldValue = textarea.value.trim();
-
-        if (labelName && fieldValue) {
-          profile.fields[labelName] = fieldValue;
+        for (let key in profileData) {
+          if (!profileData[key]) {
+            delete profileData[key];
+          }
         }
+
+        const profile = {
+          id: currentId + 1,
+          fields: profileData
+        };
+
+        const formGroups = manualFieldsContainer.querySelectorAll('.form-group');
+        formGroups.forEach((formGroup) => {
+          const labelInput = formGroup.querySelector('input');
+          const textarea = formGroup.querySelector('textarea');
+          
+          if (labelInput && textarea) {
+            const labelName = labelInput.value.trim();
+            const fieldValue = textarea.value.trim();
+
+            if (labelName && fieldValue) {
+              profile.fields[labelName] = fieldValue;
+            }
+          }
+        });
+
+        let keyOne = `profile_${currentId + 1}`
+
+        chrome.storage.local.set({ [keyOne] : JSON.stringify(profile) });
+        currentId++;
+        chrome.storage.local.set({currentId : currentId});
+
+        window.location.href = chrome.runtime.getURL("popup/popup.html");
+
+        alert(keyOne + " - " + " Profile created")
+
+      });
+
+      
+
+    })
+
+  linkedinBtn.addEventListener("click", () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const currentTab = tabs[0]; // Şu anki aktif sekme
+      if (currentTab && currentTab.url.includes("linkedin.com")) {
+        chrome.tabs.sendMessage(tabs[0].id, { action: "getLinkedin" }, (response) => {
+              
+          console.log(response.data.details)
+  
+          document.getElementById('fullname').value = response.data.details.fullName
+          document.getElementById('experience').value = response.data.details.experience.join(", ")
+          document.getElementById('education').value = response.data.details.education.join(", ")
+          document.getElementById('skills').value = response.data.details.skills.join(", ")
+  
+        });
+      } else {
+        alert("Please go to your linkedin profile page to use this feature");
       }
+      
     });
-
-    localStorage.setItem(`profile_${currentId + 1}`, JSON.stringify(profile));
-    currentId++;
-    localStorage.setItem("currentId", currentId);
-
-    alert("Profile created successfully!");
-    profileNameInput.value = "";
-    document.getElementById("fullname").value = "";
-    document.getElementById("email").value = "";
-    document.getElementById("experience").value = "";
-    document.getElementById("education").value = "";
-    document.getElementById("skills").value = "";
-    manualFieldsContainer.innerHTML = "";
-  });
+  })
 });
+  

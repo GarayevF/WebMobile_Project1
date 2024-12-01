@@ -1,6 +1,7 @@
 let crntId = null;
 
 
+
 chrome.storage.local.get(null, function (items) {
   const keys = Object.keys(items);
   console.log(keys)
@@ -44,6 +45,7 @@ chrome.storage.local.get(["currentId"], (result) => {
     });
 
     if (isApplicationForm) {
+      
       if (crntId !== null && crntId !== undefined) {
         const button = document.createElement("button");
         button.textContent = "Autofill";
@@ -143,10 +145,20 @@ chrome.storage.local.get(["currentId"], (result) => {
 
         formData['Profile Name'] = profileName
 
-        chrome.storage.local.set({"profile_10" : JSON.stringify({id: 10, fields : formData})}, function () {
-          console.log(`"${profileName}" Saved.`)
-            alert(`"${profileName}" Saved.`);
-        });
+        chrome.storage.local.get(["currentId"], (result) => {
+      
+
+          let currentId = result.currentId ? parseInt(result.currentId) : 0;
+  
+          currentId++;
+          
+          chrome.storage.local.set({[`profile_${currentId}`] : JSON.stringify({id: currentId, fields : formData})}, function () {
+            console.log(`"${profileName}" Saved.`)
+              alert(`"${profileName}" Saved.`);
+          });
+        })
+
+        
 
       });
 
@@ -161,110 +173,98 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log(message.ferid);
   }
 
-  if (message.action === "getH1") {
-    // chrome.runtime.sendMessage({ action: "test1" }, (response) => {
-    //     alert(response.data)
-    // });
+  if (message.action === "getLinkedin") {
+    
+    const fullName = document.querySelector(".ph5 > .mt2 > div:first-child > div:first-child > span:first-child h1")?.textContent || "No H1 found";
 
-    chrome.runtime.sendMessage({ action: "startCollection" }, (response) => {
-      if (response && response.status === "completed") {
-        alert("Collected Data:", response.collectedTexts);
+    const description = document.querySelector(".ph5 > .mt2 > div:first-child > div:last-child")?.textContent || "No H1 found";
 
-        
-      }
-      sendResponse({ status: "ok", data: response });
+    const experienceLis = (document.querySelector("#experience")) ? Array.from(document.querySelector("#experience").nextElementSibling.nextElementSibling.querySelector("ul").children) : null
+    const educationLis = (document.querySelector("#education")) ? Array.from(document.querySelector("#education").nextElementSibling.nextElementSibling.querySelector("ul").children) : null
+    const licensesLis = (document.querySelector("#licenses_and_certifications")) ? Array.from(document.querySelector("#licenses_and_certifications")?.nextElementSibling.nextElementSibling.querySelector("ul").children) : null
+    let name = ""
+    let test = ""
+
+    let details = {
+        fullName : fullName,
+        description : description,
+        experience : [],
+        education : [],
+        licenses : [],
+        skills : [],
+    }
+
+    if(experienceLis !== null)
+    experienceLis.forEach(li => {
+        let companyName
+
+        if(li.querySelectorAll(".AkLKBtjIVUOofkzfJtyfidxlZrKVzELxjIDjwXM").length > 0){
+
+            companyName = li.querySelector("div:first-child > div:nth-child(2) > div:first-child span:first-child")?.textContent
+            let jobs = Array.from(li.querySelector("div:first-child > div:nth-child(2) > div:nth-child(2) > ul").children)
+
+            let jobNames = []
+
+            jobs.forEach(job => {
+                jobTitle = job.querySelector("div > div:nth-child(2) > div").querySelector("span:first-child").textContent
+                jobNames.push(jobTitle)
+            })
+
+            details.experience.push(`${jobNames.join(", ")} at ${companyName}`)
+
+        }else{
+            companyName = li.querySelector("div:first-child > div:nth-child(2) > div:first-child span span[aria-hidden=true]").textContent
+            let jobName = li.querySelector("div:first-child > div:nth-child(2) > div:first-child span:first-child")?.textContent
+            details.experience.push(`${jobName} at ${companyName}`)
+        }
+
     });
 
-    // const fullName = document.querySelector(".ph5 > .mt2 > div:first-child > div:first-child > span:first-child h1")?.textContent || "No H1 found";
+    if(educationLis !== null)
+    educationLis.forEach(li => {
 
-    // const description = document.querySelector(".ph5 > .mt2 > div:first-child > div:last-child")?.textContent || "No H1 found";
+        let first = li.querySelector("div:first-child > div:nth-child(2) > div:first-child span span[aria-hidden=true]").textContent
+        let second = li.querySelector("div:first-child > div:nth-child(2) > div:first-child span:first-child")?.textContent;
 
-    // const experienceLis = Array.from(document.querySelector("#experience").nextElementSibling.nextElementSibling.querySelector("ul").children)
-    // const educationLis = Array.from(document.querySelector("#education").nextElementSibling.nextElementSibling.querySelector("ul").children)
-    // const licensesLis = (document.querySelector("#licenses_and_certifications")) ? Array.from(document.querySelector("#licenses_and_certifications")?.nextElementSibling.nextElementSibling.querySelector("ul").children) : null
-    // let name = ""
-    // let test = ""
+        details.education.push(`${first} at ${second}`)
 
-    // let details = {
-    //     fullName : fullName,
-    //     description : description,
-    //     experience : [],
-    //     education : [],
-    //     licenses : [],
-    //     skills : [],
-    //     languages : []
-    // }
+    })
 
-    // experienceLis.forEach(li => {
-    //     let companyName
+    if(licensesLis !== null)
+    licensesLis.forEach(li => {
+        let first = li.querySelector("div:first-child > div:nth-child(2) > div:first-child span:first-child")?.textContent;
+        details.licenses.push(first)
+    })
 
-    //     if(li.querySelectorAll(".AkLKBtjIVUOofkzfJtyfidxlZrKVzELxjIDjwXM").length > 0){
+    let skillLis = (document.querySelector("#skills")) ? Array.from(document.querySelector("#skills").nextElementSibling.nextElementSibling.querySelector("ul").children) : null
 
-    //         companyName = li.querySelector("div:first-child > div:nth-child(2) > div:first-child span:first-child")?.textContent
-    //         let jobs = Array.from(li.querySelector("div:first-child > div:nth-child(2) > div:nth-child(2) > ul").children)
+    if(skillLis !== null)
+    skillLis.forEach(li => {
+        skill = li.querySelector("div:first-child > div:nth-child(2) > div:first-child span:first-child")?.textContent;
+        details.skills.push(skill)
+    })
 
-    //         let jobNames = []
+    // setTimeout(() => {
+    //     skillLis = Array.from(document.querySelector("main .AinqZszEaqmDcYpPBIjkVYrtmukhMyPEwICOZok").children)
 
-    //         jobs.forEach(job => {
-    //             jobTitle = job.querySelector("div > div:nth-child(2) > div").querySelector("span:first-child").textContent
-    //             jobNames.push(jobTitle)
-    //         })
+    //     skillLis.forEach(li => {
+    //         skill = li.querySelector("span[aria-hidden=true]").textContent
+    //         details.skills.push(skill)
+    //     })
 
-    //         details.experience.push(`${jobNames.join(", ")} at ${companyName}`)
+    //     setTimeout(() => {
+    //         sendResponse({ status: "ok", data: {fullName, description, details} });
+    //     }, 1000);
+    // }, 5000);
 
-    //     }else{
-    //         companyName = li.querySelector("div:first-child > div:nth-child(2) > div:first-child span span[aria-hidden=true]").textContent
-    //         let jobName = li.querySelector("div:first-child > div:nth-child(2) > div:first-child span:first-child")?.textContent
-    //         details.experience.push(`${jobName} at ${companyName}`)
-    //     }
+    // chrome.tabs.sendMessage({ action: "newtab" }, (response) => {
+
+    //     alert(response);
 
     // });
 
-    // educationLis.forEach(li => {
-
-    //     let first = li.querySelector("div:first-child > div:nth-child(2) > div:first-child span span[aria-hidden=true]").textContent
-    //     let second = li.querySelector("div:first-child > div:nth-child(2) > div:first-child span:first-child")?.textContent;
-
-    //     details.education.push(`${first} at ${second}`)
-
-    // })
-
-    // if(licensesLis !== null)
-    // licensesLis.forEach(li => {
-    //     let first = li.querySelector("div:first-child > div:nth-child(2) > div:first-child span:first-child")?.textContent;
-    //     details.licenses.push(first)
-    // })
-
-    // let url = document.querySelector("#skills").nextElementSibling.nextElementSibling.querySelector(".pvs-list__footer-wrapper a").href
-
-    // // let skillLis = Array.from(document.querySelector("#skills").nextElementSibling.nextElementSibling.querySelector("ul").children)
-
-    // // skillLis.forEach(li => {
-    // //     skill = li.querySelector("div:first-child > div:nth-child(2) > div:first-child span:first-child")?.textContent;
-    // //     details.skills.push(skill)
-    // // })
-
-    // // setTimeout(() => {
-    // //     skillLis = Array.from(document.querySelector("main .AinqZszEaqmDcYpPBIjkVYrtmukhMyPEwICOZok").children)
-
-    // //     skillLis.forEach(li => {
-    // //         skill = li.querySelector("span[aria-hidden=true]").textContent
-    // //         details.skills.push(skill)
-    // //     })
-
-    // //     setTimeout(() => {
-    // //         sendResponse({ status: "ok", data: {fullName, description, details} });
-    // //     }, 1000);
-    // // }, 5000);
-
-    // // chrome.tabs.sendMessage({ action: "newtab" }, (response) => {
-
-    // //     alert(response);
-
-    // // });
-
     sendResponse({
-      status: "ok" /*, data: {fullName, description, details} */,
+      status: "ok" , data: {fullName, description, details} ,
     });
 
     return true;

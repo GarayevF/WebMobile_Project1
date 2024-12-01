@@ -4,12 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileNameDisplay = document.getElementById("fileName");
   
     importBtn.disabled = true;
-  
-    const getNextProfileId = () => {
-      let currentId = localStorage.getItem("currentId") ? parseInt(localStorage.getItem("currentId")) : 1;
-      localStorage.setItem("currentId", currentId + 1);
-      return currentId;
-    };
+
   
     importInput.addEventListener("change", () => {
       const file = importInput.files[0];
@@ -32,6 +27,9 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
   
+
+      /* OpenAI. (2024). ChatGPT (Version GPT-3) [Large language model]. https://chatgpt.com/share/674c79a6-54f0-800f-89dd-cac8eda42e9f */
+      // I get the code from ChatGpt, Used Prompt: also I want to know how to import from our device
       const reader = new FileReader();
   
       reader.onload = () => {
@@ -42,32 +40,53 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("Invalid profile format. 'Profile Name' is required.");
             return;
           }
-          const isUnique = Object.keys(localStorage).every((key) => {
-            if (key.startsWith("profile_")) {
-              const existingProfile = JSON.parse(localStorage.getItem(key));
-              return existingProfile.fields["Profile Name"] !== profileData["Profile Name"];
+          chrome.storage.local.get(null, function (items) {
+            const isUnique = Object.keys(items).every((key) => {
+              if (key.startsWith("profile_")) {
+                chrome.storage.local.get(key, (result) => {
+                  const existingProfile = JSON.parse(result[key]);
+                  return existingProfile.fields["Profile Name"] !== profileData["Profile Name"];
+                })
+                
+                
+              }
+              return true;
+            });
+    
+            if (!isUnique) {
+              alert("A profile with this name already exists. Please use a different name.");
+              return;
             }
-            return true;
-          });
-  
-          if (!isUnique) {
-            alert("A profile with this name already exists. Please use a different name.");
-            return;
-          }
-  
-          const id = getNextProfileId();
-          const profile = {
-            id: id,
-            fields: profileData,
-          };
-  
-          localStorage.setItem(`profile_${id}`, JSON.stringify(profile));
-          alert("Profile imported successfully!");
-  
-          importInput.value = "";
-          fileNameDisplay.textContent = "";
-          fileNameDisplay.style.visibility = "hidden";
-          importBtn.disabled = true;
+    
+            chrome.storage.local.get(["currentId"], (result) => {
+      
+
+              let currentId = result.currentId ? parseInt(result.currentId) : 1;
+      
+              chrome.storage.local.set({ ["currentId"] : currentId + 1 });
+              
+              const id = currentId;
+              const profile = {
+                id: id,
+                fields: profileData,
+              };
+
+              console.log(JSON.stringify(profile))
+              alert(`profile_${id}`)
+              
+              chrome.storage.local.set({ [`profile_${id}`] : JSON.stringify(profile) });
+      
+              alert("Profile imported successfully!");
+      
+              importInput.value = "";
+              fileNameDisplay.textContent = "";
+              fileNameDisplay.style.visibility = "hidden";
+              importBtn.disabled = true;
+              
+            })
+            
+          })
+          
         } catch (error) {
           alert("Failed to import profile. Make sure the file is a valid JSON format.");
         }

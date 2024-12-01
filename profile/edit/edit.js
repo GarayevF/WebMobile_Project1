@@ -5,17 +5,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const loadProfiles = () => {
       selectProfile.innerHTML = '<option value="" disabled selected>Select a profile</option>';
-      const currentId = localStorage.getItem("currentId");
-      for (let i = 1; i <= currentId; i++) {
-          const profileData = localStorage.getItem(`profile_${i}`);
-          if (profileData) {
-              const profile = JSON.parse(profileData);
-              const option = document.createElement("option");
-              option.value = profile.id;
-              option.textContent = profile.fields["Profile Name"] || `Profile ${profile.id}`;
-              selectProfile.appendChild(option);
-          }
-      }
+      chrome.storage.local.get(["currentId"], (result) => {
+      
+        const currentId = result.currentId;
+        for (let i = 1; i <= currentId; i++) {
+
+            chrome.storage.local.get([`profile_${i}`], (res) => {
+                const profileData = res[`profile_${i}`];
+                if (profileData) {
+                    const profile = JSON.parse(profileData);
+                    const option = document.createElement("option");
+                    option.value = profile.id;
+                    option.textContent = profile.fields["Profile Name"] || `Profile ${profile.id}`;
+                    selectProfile.appendChild(option);
+                }
+            })
+
+            
+        }
+      })
+      
   };
 
   const loadProfileFields = (profile) => {
@@ -51,7 +60,8 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const profile = { id: profileId, fields: profileData };
-      localStorage.setItem(`profile_${profileId}`, JSON.stringify(profile));
+      
+      chrome.storage.local.set({ [`profile_${profileId}`] : JSON.stringify(profile) });
       alert("Profile saved successfully!");
 
       profileFieldsContainer.innerHTML = "";
@@ -62,12 +72,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   selectProfile.addEventListener("change", (event) => {
       const profileId = event.target.value;
-      const profileData = localStorage.getItem(`profile_${profileId}`);
-      if (profileData) {
-          const profile = JSON.parse(profileData);
-          loadProfileFields(profile);
-          saveProfileBtn.classList.add("visible");
-      }
+      chrome.storage.local.get([`profile_${profileId}`], (res) => {
+        const profileData = res[`profile_${profileId}`];
+
+        if (profileData) {
+            const profile = JSON.parse(profileData);
+            loadProfileFields(profile);
+            saveProfileBtn.classList.add("visible");
+        }
+      })
+      
+      
   });
 
   saveProfileBtn.addEventListener("click", () => {

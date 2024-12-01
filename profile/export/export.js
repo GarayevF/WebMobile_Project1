@@ -5,16 +5,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const emailInput = document.getElementById("emailInput");
 
   const loadProfiles = () => {
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key.startsWith("profile_")) {
-        const profile = JSON.parse(localStorage.getItem(key));
-        const option = document.createElement("option");
-        option.value = key;
-        option.textContent = profile.fields["Profile Name"];
-        profileSelect.appendChild(option);
+
+    chrome.storage.local.get(null, function (items) {
+      const keys = Object.keys(items);
+      for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        if (key.startsWith("profile_")) {
+          
+          chrome.storage.local.get(key, (result) => {
+            const profile = JSON.parse(result[key]);
+            const option = document.createElement("option");
+            option.value = key;
+            option.textContent = profile.fields["Profile Name"];
+            profileSelect.appendChild(option);
+          })
+
+          
+        }
       }
-    }
+      })
   };
 
   profileSelect.addEventListener("change", () => {
@@ -28,21 +37,30 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const profileData = JSON.parse(localStorage.getItem(selectedProfileKey));
-    if (profileData) {
-      const { id, fields } = profileData;
+    chrome.storage.local.get(selectedProfileKey, (result) => {
+      const profileData = JSON.parse(result[selectedProfileKey]);
 
-      const blob = new Blob([JSON.stringify(fields, null, 2)], { type: "application/json" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      const profileName = fields["Profile Name"];
-      link.download = `${profileName}.json`;
+      if (profileData) {
+        const { id, fields } = profileData;
+  
+        //* OpenAI. (2024). ChatGPT (Version GPT-3) [Large language model].  https://chatgpt.com/share/674c79a6-54f0-800f-89dd-cac8eda42e9f */
+        const blob = new Blob([JSON.stringify(fields, null, 2)], { type: "application/json" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        const profileName = fields["Profile Name"];
+        link.download = `${profileName}.json`;
+  
+        link.click();
 
-      link.click();
-      URL.revokeObjectURL(link.href);
-    } else {
-      alert("Profile data not found.");
-    }
+        // Till this code. I get this snippet From Chatgpt, Used Prompt:  I have data as json how can I export and download it to my profile
+        URL.revokeObjectURL(link.href);
+      } else {
+        alert("Profile data not found.");
+      }
+    })
+
+    
+    
   });
 
   sendMailBtn.addEventListener("click", () => {
@@ -58,19 +76,24 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const profileData = JSON.parse(localStorage.getItem(selectedProfileKey));
-    if (profileData) {
-      const { fields } = profileData;
-
-      const subject = `Profile: ${fields["Profile Name"]}`;
-      const body = `Profile Data:\n\n${JSON.stringify(fields, null, 2)}`;
-
-      const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-      window.location.href = mailtoLink;
-    } else {
-      alert("Profile data not found.");
-    }
+    chrome.storage.local.get(selectedProfileKey, (result) => {
+      const profileData = JSON.parse(result[selectedProfileKey]);
+      if (profileData) {
+        const { fields } = profileData;
+  
+        const subject = `Profile: ${fields["Profile Name"]}`;
+        const body = `Profile Data:\n\n${JSON.stringify(fields, null, 2)}`;
+  
+        ///* OpenAI. (2024). ChatGPT (Version GPT-3) [Large language model]. https://chatgpt.com/share/674c79a6-54f0-800f-89dd-cac8eda42e9f */
+        const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        
+        /* I get encodeURIComponent from Chatgpt. Used Prompts: do not use backend just use mailto since I will send the json data as string, encodeURIComponent what does it mean.*/
+        window.location.href = mailtoLink;
+      } else {
+        alert("Profile data not found.");
+      }
+    })
+    
   });
 
   loadProfiles();
