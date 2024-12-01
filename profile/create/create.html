@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto Form Filler</title>
+  <link rel="stylesheet" href="create.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Profile</h1>
+    <div id="profile-name">
+      <label for="name">Profile Name:</label>
+        <input type="text" id="name" placeholder="Enter Profile Name">
+    </div>
+    <div id="profileData">
+      <h2>Profile Information</h2>
+
+      <div class="form-group">
+        <label for="fullname">FullName:</label>
+        <input type="text" id="fullname" placeholder="Enter FullName">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" placeholder="Enter your email" />
+      </div>
+      
+      <div class="form-group">
+        <label for="experience">Experience:</label>
+        <textarea id="experience" placeholder="Enter Experience"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="education">Education:</label>
+        <textarea id="education" placeholder="Enter Education"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="skills">Skills:</label>
+        <textarea id="skills" placeholder="Enter Skills"></textarea>
+      </div>
+    </div>
+
+    <button id="loadProfileBtn">Load LinkedIn Profile</button>
+
+    <h2>Manual Entry</h2>
+    <div id="manualFields">
+
+    </div>
+
+    <button id="addFieldBtn">Add Custom Field</button>
+    <button id="createProfileBtn">Create Profile</button>
+  </div>
+
+  <script src="create.js"></script>
+</body>
+</html>
