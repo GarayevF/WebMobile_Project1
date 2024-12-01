@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Export Profile</title>
+  <link rel="stylesheet" href="export.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Export Profile</h1>
+
+    <div class="profile-selection">
+      <label for="profileSelect">Select Profile:</label>
+      <select id="profileSelect">
+        <option value="">--Select a Profile--</option>
+      </select>
+    </div>
+
+    <div class="email-input">
+      <label for="emailInput">Your Email:</label>
+      <input type="email" id="emailInput" placeholder="Enter your email">
+    </div>
+
+    <div class="buttons">
+      <button id="exportBtn">Export Profile</button>
+      <button id="sendMailBtn">Send as Email</button>
+    </div>
+  </div>
+
+  <script src="export.js"></script>
+</body>
+</html>
